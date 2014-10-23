@@ -13,7 +13,7 @@
 	import feathers.layout.AnchorLayoutData;
 	import feathers.themes.MetalWorksMobileTheme;
 	import feathers.events.FeathersEventType;
-	import feathers.utils.AssetManager;
+	import starling.utils.AssetManager;
 	
 	import flash.filesystem.File;
 	import starling.display.Button;
@@ -24,9 +24,9 @@
 	
 	public class Main extends Screen
 	{
-		private var assetMgr:Assetmanager;
+		private var assetMgr:AssetManager;
 		private var controlButton:Button;
-		
+		private var pauseButton:Button;
 		private var videoStream:NetStream;
 		
 		private var video:Video;
@@ -47,19 +47,19 @@
 			
 			this.stage.addEventListener(Event.RESIZE, stageResized);
 			
-			asserMgr = new AssetManager();
+			assetMgr = new AssetManager();
 			assetMgr.verbose = true;
 			
 			var appDir:File = File.applicationDirectory;
 			
 			assetMgr.enqueue(appDir.resolvePath("assets"));
-			assetMgr.loadqueue(handleAssetsLoading);
+			assetMgr.loadQueue(handleAssetsLoading);
 			
 		}
 		
 		private function handleAssetsLoading(ratioLoaded:Number):void
 		{
-			trace("handleAssetsLoading: " + ratioloaded);
+			trace("handleAssetsLoading: " + ratioLoaded);
 			
 			if (ratioLoaded == 1)
 			{
@@ -76,16 +76,18 @@
 			this.height = this.stage.stageHeight;
 			this.width = this.stage.stageWidth;
 			
-			portrait = true;
+			portraitMode = true;
 			
 			setupVideo();
 			
 			setupButton();
+			
+			pauseButton();
 		}
 		
 		private function setupVideo()
 		{
-			var nc:NetConnection();
+			var nc:NetConnection = new NetConnection();
 			
 			nc.connect(null);
 			
@@ -119,6 +121,23 @@
 								
 		}
 		
+		private function pauseButton():void
+		{
+			pauseButton = new Button();
+			pauseButton.label = "Pause";
+			
+			var pauseButtonLayout:AnchorLayoutData = new AnchorLayoutData();
+			pauseButtonLayout.left = 5;
+			pauseButtonLayout.right = 5;
+			pauseButtonLayout.bottom = 30;
+			
+			pauseButton.layoutData = controlButtonLayout;
+			
+			pauseButton.addEventListener(Event.TRIGGERED, handlePauseButtonClick);
+			this.addChild(pauseButton);
+								
+		}
+		
 		private function handleControlButtonClick(e:Event):void
 		{
 			if (! videoPlaying)
@@ -135,7 +154,12 @@
 			}
 		}
 		
-		protected function stageResized(e:EastAsianJustifier:void
+		private function handlePauseButtonClick(e:Event):void
+		{
+			videoStream.togglePause();
+		}
+		
+		protected function stageResized(e:EastAsianJustifier):void
 		{
 			this.height = this.stage.stageHeight;
 			this.width = this.stage.stageWidth;
@@ -161,7 +185,7 @@
 					video.height = this.height - controlButton.height - 5 - 10;
 					video.scaleX = video.scaleY;
 					
-					video.x = (this.width - video.width/2;
+					video.x = (this.width - video.width)/2;
 					video.y = 5;
 				}
 				else
